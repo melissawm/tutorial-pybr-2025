@@ -1,6 +1,4 @@
-# Tutorial Python Brasil 2025
-
-## Documentar é só o começo!
+# Documentar é só o começo!
 
 Aprenda do zero a documentar pacotes Python com tranquilidade! Vamos falar de GitHub, Sphinx, MkDocs, temas bonitos e deploy automático com GitHub Actions ou ReadTheDocs (a documentação é com você!)
 Detalhes
@@ -17,20 +15,3 @@ Vamos explorar duas ferramentas populares de documentação:
 Além disso, você vai entender como escrever sua documentação em Markdown ou reStructuredText, como configurar arquivos como `conf.py` ou `mkdocs.yml`, e como deixar tudo integrado ao seu fluxo de desenvolvimento.
 
 No final, seu projeto vai ter um site bonito, funcional e hospedado automaticamente, pronto pra impressionar colegas, recrutadores e até o seu eu do futuro.
-
-## Pré-requisitos
-
-1. [uv](https://docs.astral.sh/uv/)
-2. [Git](https://git-scm.com/)
-3. Conta no [GitHub](https://github.com/)
-4. [Python](https://www.python.org/downloads/) (3.11+)
-
-## Preparação do ambiente
-
-```bash
-uv init
-uv add "jupyter-book>=2.0.0a0"
-source .venv/bin/activate
-cd tutorial/roteiro
-jupyter book init
-```
