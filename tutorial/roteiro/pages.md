@@ -13,19 +13,28 @@ Para publicar sua documentação no GitHub Pages, siga estas etapas:
 ![](./imagens/03-github_workflow.png)
 5. Adicione o seguinte conteúdo ao arquivo de workflow:
 
-````{tab-set}
-```{tab-item} Sphinx
-name: Deploy Sphinx documentation to GitHub Pages
+`````{tab-set}
+````{tab-item} Sphinx
+
+```yaml
+name: Deploy to GitHub Pages
 on:
   push:
     branches:
       - main  # ou a branch que você deseja monitorar
+  workflow_dispatch:  # Para executar o workflow manualmente
+
 jobs:
     deploy:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout repository
-          uses: actions/checkout@v5
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+        pages: write
+        id-token: write
+      steps:
+        - uses: actions/checkout@v5
+        - name: Setup Pages
+          uses: actions/configure-pages@v3
         - name: Install uv
           uses: astral-sh/setup-uv@v6
         - name: "Set up Python"
@@ -37,20 +46,64 @@ jobs:
               uv sync --all-groups
         - name: Build documentation
           run: |
-              cd tutorial/roteiro
-              make html
-        - name: Deploy to GitHub Pages
-          uses: peaceiris/actions-gh-pages@v3
+              uv run make -C docs html
+        - name: Upload artifact
+          uses: actions/upload-pages-artifact@v3
           with:
-              github_token: ${{ secrets.GITHUB_TOKEN }}
-              publish_dir: tutorial/roteiro/_build/html
-```
-
-```{tab-item} MkDocs
-Teste
+            path: './docs/_build/html'
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
 ```
 ````
 
+````{tab-item} MkDocs
+
+```yaml
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - main  # ou a branch que você deseja monitorar
+  workflow_dispatch:  # Para executar o workflow manualmente
+
+jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+        pages: write
+        id-token: write
+      steps:
+        - uses: actions/checkout@v5
+        - name: Setup Pages
+          uses: actions/configure-pages@v3
+        - name: Install uv
+          uses: astral-sh/setup-uv@v6
+        - name: "Set up Python"
+          uses: actions/setup-python@v5
+          with:
+            python-version-file: ".python-version"
+        - name: Install dependencies
+          run: |
+              uv sync --all-groups
+        - name: Build documentation
+          run: |
+              uv run mkdocs build 
+        - name: Upload artifact
+          uses: actions/upload-pages-artifact@v3
+          with:
+            path: './site'
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
+```
+````
+`````
+
+6. Salve e faça o commit do arquivo de workflow.
+
+Se você fizer um push para o branch monitorado (por exemplo, `main`), o GitHub Actions vai executar o workflow automaticamente, mas você também pode executá-lo manualmente na aba "Actions" do seu repositório.
 
 Após alguns minutos, sua documentação estará disponível em `https://<seu-usuario>.github.io/<seu-repositorio>/`.
 
@@ -64,41 +117,68 @@ Para publicar sua documentação no ReadTheDocs, siga estas etapas:
 4. Selecione o repositório que você criou no GitHub.
 5. Siga as instruções para configurar o projeto e escolher a branch que contém sua documentação.
 
-Após a configuração, sua documentação será gerada automaticamente e estará disponível em `https://<seu-projeto>.readthedocs.io/`.
+O ReadTheDocs pode ser configurado para usar Sphinx ou MkDocs, dependendo de como você estruturou sua documentação. Use o arquivo `.readthedocs.yml` na raiz do seu repositório para especificar as configurações necessárias.
 
-## CircleCI para Previews
-
-Para configurar o CircleCI para gerar previews da sua documentação, siga estas etapas:
-1. Crie uma conta no [CircleCI](https://circleci.com/) e conecte-a ao seu repositório do GitHub.
-2. Adicione um arquivo de configuração `.circleci/config.yml` ao seu repositório
-com o seguinte conteúdo básico:
+`````{tab-set}
+````{tab-item} Sphinx
 
 ```yaml
-version: 2.1
-jobs:
-  build:
-    docker:
-      - image: circleci/python:3.9
-    steps:
-        - checkout
-        - run:
-            name: Install dependencies
-            command: |
-              python -m venv venv
-              . venv/bin/activate
-              pip install mkdocs mkdocs-material
-        - run:
-            name: Build documentation
-            command: |
-              . venv/bin/activate
-              mkdocs build
-workflows:
-  version: 2
-  build_and_deploy:
-    jobs:
-      - build
-```
+# Read the Docs configuration file for Sphinx projects
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-3. Faça commit e push do arquivo de configuração para o seu repositório.
-4. No CircleCI, configure o projeto para que ele execute o job de build a cada
-push ou pull request.
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.13"
+  jobs:
+    pre_create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    create_environment:
+      - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
+    install:
+      - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
+
+# Build documentation in the "docs/" directory with Sphinx
+sphinx:
+  configuration: docs/conf.py
+  fail_on_warning: true
+```
+````
+
+````{tab-item} MkDocs
+
+```yaml
+# Read the Docs configuration file for Sphinx projects
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.13"
+  jobs:
+    pre_create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    create_environment:
+      - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
+    install:
+      - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
+
+mkdocs:
+  configuration: mkdocs.yml
+```
+````
+`````
+
+Após a configuração, sua documentação será gerada automaticamente e estará disponível em `https://<seu-projeto>.readthedocs.io/`.
