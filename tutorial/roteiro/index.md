@@ -1,7 +1,13 @@
 # Documentar é só o começo!
 
 Aprenda do zero a documentar pacotes Python com tranquilidade! Vamos falar de GitHub, Sphinx, MkDocs, temas bonitos e deploy automático com GitHub Actions ou ReadTheDocs (a documentação é com você!)
-Detalhes
+
+## Quando e onde
+
+Terça-feira, 21 de outubro de 2025, das 14h - 17:30
+Impacta - Sala 208
+
+## Detalhes
 
 Você escreveu aquele pacote Python incrível, mas ainda está com um README.md sofrido e nenhum site de documentação? Calma, que **documentar é só o começo** — e você vai ver que é mais fácil (e mais bonito) do que parece.
 

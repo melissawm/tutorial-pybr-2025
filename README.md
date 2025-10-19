@@ -27,10 +27,19 @@ No final, seu projeto vai ter um site bonito, funcional e hospedado automaticame
 
 ## Preparação do ambiente
 
+Primeiro setup:
+
 ```bash
 uv init
 uv add "jupyter-book>=2.0.0a0"
 source .venv/bin/activate
 cd tutorial/roteiro
 jupyter book init
+```
+
+Para desenvolver localmente:
+
+```bash
+uv sync
+uv run jupyter book start
 ```
