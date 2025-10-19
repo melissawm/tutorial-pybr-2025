@@ -7,6 +7,11 @@ on:
 env:
   BASE_URL: /${{ github.event.repository.name }}
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
     deploy:
       environment:
