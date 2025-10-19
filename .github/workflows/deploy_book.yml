@@ -4,11 +4,16 @@ on:
     branches:
       - main  # ou a branch que você deseja monitorar
   workflow_dispatch:  # Para executar o workflow manualmente
+env:
+  BASE_URL: /${{ github.event.repository.name }}
 
 jobs:
     deploy:
-        runs-on: ubuntu-latest
-        steps:
+      environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+      runs-on: ubuntu-latest
+      steps:
         - name: Checkout repository
           uses: actions/checkout@v5
         - name: Install uv
@@ -23,7 +28,7 @@ jobs:
         - name: Build documentation
           run: |
               cd tutorial/roteiro
-              make html
+              uv run jupyter book build --html
         - name: Deploy to GitHub Pages
           uses: peaceiris/actions-gh-pages@v3
           with:
