@@ -6,9 +6,51 @@ Para publicar sua documentação no GitHub Pages, siga estas etapas:
 
 1. Crie um repositório no GitHub e faça o push do seu código.
 2. No repositório, vá para a aba "Settings".
-3. Role para baixo até a seção "GitHub Pages".
-4. Selecione a branch que contém sua documentação (geralmente `main` ou `gh-pages`).
-5. Clique em "Save".
+![](./imagens/01-github_settings.png)
+3. Role para baixo até a seção "GitHub Pages" e selecione a opção "GitHub Actions".
+![](./imagens/02-github_pages.png)
+4. Selecione a opção "create your own" para criar um novo workflow.
+![](./imagens/03-github_workflow.png)
+5. Adicione o seguinte conteúdo ao arquivo de workflow:
+
+````{tab-set}
+```{tab-item} Sphinx
+name: Deploy Sphinx documentation to GitHub Pages
+on:
+  push:
+    branches:
+      - main  # ou a branch que você deseja monitorar
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+        - name: Install uv
+          uses: astral-sh/setup-uv@v6
+        - name: "Set up Python"
+          uses: actions/setup-python@v5
+          with:
+            python-version-file: ".python-version"
+        - name: Install dependencies
+          run: |
+              uv sync --all-groups
+        - name: Build documentation
+          run: |
+              cd tutorial/roteiro
+              make html
+        - name: Deploy to GitHub Pages
+          uses: peaceiris/actions-gh-pages@v3
+          with:
+              github_token: ${{ secrets.GITHUB_TOKEN }}
+              publish_dir: tutorial/roteiro/_build/html
+```
+
+```{tab-item} MkDocs
+Teste
+```
+````
+
 
 Após alguns minutos, sua documentação estará disponível em `https://<seu-usuario>.github.io/<seu-repositorio>/`.
 
